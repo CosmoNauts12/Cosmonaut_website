@@ -1,277 +1,89 @@
-// Theme Management
-const themeToggle = document.querySelector('.theme-toggle');
-const html = document.documentElement;
-
-// Check for saved theme preference or default to 'light'
-const currentTheme = localStorage.getItem('theme') || 'light';
-html.setAttribute('data-theme', currentTheme);
-
-themeToggle.addEventListener('click', () => {
-    const currentTheme = html.getAttribute('data-theme');
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-
-    html.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-
-    // Add transition effect
-    document.body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
-});
-
-// Navbar scroll effect
-let lastScroll = 0;
-const navbar = document.querySelector('.navbar');
-
-window.addEventListener('scroll', () => {
-    const currentScroll = window.pageYOffset;
-
-    if (currentScroll > 100) {
-        navbar.style.boxShadow = '0 2px 20px var(--shadow)';
-    } else {
-        navbar.style.boxShadow = 'none';
-    }
-
-    lastScroll = currentScroll;
-});
-
-// Smooth scroll for anchor links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            const offset = 80;
-            const targetPosition = target.offsetTop - offset;
-            window.scrollTo({
-                top: targetPosition,
-                behavior: 'smooth'
-            });
-        }
-    });
-});
-
-// Detect OS and highlight appropriate platform
-function detectOS() {
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    const platform = window.navigator.platform.toLowerCase();
-
-    let os = 'unknown';
-
-    if (platform.indexOf('win') !== -1) {
-        os = 'windows';
-    } else if (platform.indexOf('mac') !== -1) {
-        os = 'macos';
-    } else if (platform.indexOf('linux') !== -1 || platform.indexOf('x11') !== -1) {
-        os = 'linux';
-    }
-
-    // Highlight the detected OS card
-    const platformCards = document.querySelectorAll('.platform-card');
-    platformCards.forEach(card => {
-        const cardPlatform = card.getAttribute('data-platform');
-        if (cardPlatform === os) {
-            card.style.borderColor = 'var(--primary)';
-            card.style.boxShadow = '0 10px 30px var(--shadow-lg)';
-        }
-    });
-}
-
-// Intersection Observer for fade-in animations
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -100px 0px'
-};
-
-const fadeInObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-        }
-    });
-}, observerOptions);
-
-// Observe elements for animation
-document.querySelectorAll('.capability-card, .platform-card, .insight-card').forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(30px)';
-    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-    fadeInObserver.observe(el);
-});
-
-// Update download links from GitHub API
-async function updateDownloadLinks() {
-    try {
-        const response = await fetch('https://api.github.com/repos/Adith1207/CosmoNaut/releases/latest');
-        const data = await response.json();
-
-        // Update version in footer
-        const versionElement = document.querySelector('.footer-meta .version');
-        if (versionElement && data.tag_name) {
-            versionElement.textContent = `Version ${data.tag_name}`;
-        }
-
-        // Update download links with actual release assets
-        if (data.assets && data.assets.length > 0) {
-            const downloadButtons = {
-                'windows-msi': null,
-                'windows-exe': null,
-                'macos-arm': null,
-                'macos-intel': null,
-                'linux-deb': null,
-                'linux-appimage': null
-            };
-
-            data.assets.forEach(asset => {
-                const name = asset.name.toLowerCase();
-
-                if (name.includes('.msi')) {
-                    downloadButtons['windows-msi'] = asset.browser_download_url;
-                } else if (name.includes('setup.exe') || name.includes('.exe')) {
-                    downloadButtons['windows-exe'] = asset.browser_download_url;
-                } else if (name.includes('.dmg') && (name.includes('aarch64') || name.includes('arm'))) {
-                    downloadButtons['macos-arm'] = asset.browser_download_url;
-                } else if (name.includes('.dmg')) {
-                    downloadButtons['macos-intel'] = asset.browser_download_url;
-                } else if (name.includes('.deb')) {
-                    downloadButtons['linux-deb'] = asset.browser_download_url;
-                } else if (name.includes('.appimage')) {
-                    downloadButtons['linux-appimage'] = asset.browser_download_url;
-                }
-            });
-
-            // Update Windows links
-            const windowsCard = document.querySelector('[data-platform="windows"]');
-            if (windowsCard) {
-                const primaryBtn = windowsCard.querySelector('.download-btn.primary');
-                const secondaryBtn = windowsCard.querySelector('.download-btn.secondary');
-                if (primaryBtn && downloadButtons['windows-msi']) {
-                    primaryBtn.href = downloadButtons['windows-msi'];
-                }
-                if (secondaryBtn && downloadButtons['windows-exe']) {
-                    secondaryBtn.href = downloadButtons['windows-exe'];
-                }
-            }
-
-            // Update macOS links
-            const macosCard = document.querySelector('[data-platform="macos"]');
-            if (macosCard) {
-                const primaryBtn = macosCard.querySelector('.download-btn.primary');
-                const secondaryBtn = macosCard.querySelector('.download-btn.secondary');
-                if (primaryBtn && downloadButtons['macos-arm']) {
-                    primaryBtn.href = downloadButtons['macos-arm'];
-                }
-                if (secondaryBtn && downloadButtons['macos-intel']) {
-                    secondaryBtn.href = downloadButtons['macos-intel'];
-                }
-            }
-
-            // Update Linux links
-            const linuxCard = document.querySelector('[data-platform="linux"]');
-            if (linuxCard) {
-                const primaryBtn = linuxCard.querySelector('.download-btn.primary');
-                const secondaryBtn = linuxCard.querySelector('.download-btn.secondary');
-                if (primaryBtn && downloadButtons['linux-deb']) {
-                    primaryBtn.href = downloadButtons['linux-deb'];
-                }
-                if (secondaryBtn && downloadButtons['linux-appimage']) {
-                    secondaryBtn.href = downloadButtons['linux-appimage'];
-                }
-            }
-        }
-    } catch (error) {
-        console.log('Could not fetch latest release info:', error);
-        // Fallback to default GitHub releases page
-        document.querySelectorAll('.download-btn').forEach(btn => {
-            if (btn.href.includes('releases/latest/download')) {
-                btn.href = 'https://github.com/Adith1207/CosmoNaut/releases/latest';
-            }
-        });
-    }
-}
-
-// Parallax effect for hero section
-window.addEventListener('scroll', () => {
-    const scrolled = window.pageYOffset;
-    const heroVisual = document.querySelector('.hero-visual');
-
-    if (heroVisual && scrolled < 800) {
-        heroVisual.style.transform = `translateY(${scrolled * 0.3}px)`;
-    }
-});
-
-// Add hover effect to capability cards
-document.querySelectorAll('.capability-card').forEach(card => {
-    card.addEventListener('mouseenter', function () {
-        const icon = this.querySelector('.capability-icon');
-        if (icon) {
-            icon.style.transform = 'scale(1.1) rotate(5deg)';
-            icon.style.transition = 'transform 0.3s ease';
-        }
-    });
-
-    card.addEventListener('mouseleave', function () {
-        const icon = this.querySelector('.capability-icon');
-        if (icon) {
-            icon.style.transform = 'scale(1) rotate(0deg)';
-        }
-    });
-});
-
-// Initialize all features on page load
 document.addEventListener('DOMContentLoaded', () => {
-    detectOS();
-    updateDownloadLinks();
+    const cursorDot = document.querySelector('.cursor-dot');
+    const cursorOutline = document.querySelector('.cursor-outline');
+    const scenes = document.querySelectorAll('.scene');
+    const body = document.body;
 
-    // Add loading animation
-    document.body.style.opacity = '0';
-    setTimeout(() => {
-        document.body.style.transition = 'opacity 0.5s ease';
-        document.body.style.opacity = '1';
-    }, 100);
-});
+    // --- Custom Cursor Logic ---
+    window.addEventListener('mousemove', (e) => {
+        const posX = e.clientX;
+        const posY = e.clientY;
 
-// Handle system theme preference
-if (window.matchMedia) {
-    const systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        cursorDot.style.left = `${posX}px`;
+        cursorDot.style.top = `${posY}px`;
 
-    // Only apply system theme if user hasn't set a preference
-    if (!localStorage.getItem('theme')) {
-        html.setAttribute('data-theme', systemThemeQuery.matches ? 'dark' : 'light');
-    }
-
-    // Listen for system theme changes
-    systemThemeQuery.addEventListener('change', (e) => {
-        if (!localStorage.getItem('theme')) {
-            html.setAttribute('data-theme', e.matches ? 'dark' : 'light');
-        }
+        // Smooth outline follower
+        cursorOutline.animate({
+            left: `${posX}px`,
+            top: `${posY}px`
+        }, { duration: 500, fill: "forwards" });
     });
-}
 
-// Add keyboard navigation support
-document.addEventListener('keydown', (e) => {
-    // Toggle theme with Ctrl/Cmd + Shift + L
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'L') {
-        e.preventDefault();
-        themeToggle.click();
-    }
-});
+    // --- Interaction Hover ---
+    document.querySelectorAll('a, button, .btn-main, .btn-sub').forEach(el => {
+        el.addEventListener('mouseenter', () => {
+            cursorOutline.style.width = '60px';
+            cursorOutline.style.height = '60px';
+            cursorOutline.style.backgroundColor = 'rgba(161, 0, 255, 0.1)';
+        });
+        el.addEventListener('mouseleave', () => {
+            cursorOutline.style.width = '30px';
+            cursorOutline.style.height = '30px';
+            cursorOutline.style.backgroundColor = 'transparent';
+        });
+    });
 
-// Performance optimization: Lazy load images when they're added
-if ('IntersectionObserver' in window) {
-    const imageObserver = new IntersectionObserver((entries, observer) => {
+    // --- Intersection Observer for Scrollytelling ---
+    const observerOptions = {
+        threshold: 0.5
+    };
+
+    const sceneObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                const img = entry.target;
-                if (img.dataset.src) {
-                    img.src = img.dataset.src;
-                    img.removeAttribute('data-src');
-                    observer.unobserve(img);
+                // Remove active from all
+                scenes.forEach(s => s.classList.remove('active'));
+
+                // Add to current
+                entry.target.classList.add('active');
+
+                // Update body state for CSS targeting
+                const sceneId = entry.target.id;
+                body.setAttribute('data-active-scene', sceneId);
+
+                // Speed up stars if in "speed" scene
+                if (sceneId === 'speed') {
+                    document.querySelectorAll('.stars').forEach(star => {
+                        star.style.animationDuration = '2s';
+                    });
+                } else {
+                    document.querySelectorAll('.stars').forEach(star => {
+                        star.style.animationDuration = ''; // reset to CSS default
+                    });
                 }
             }
         });
+    }, observerOptions);
+
+    scenes.forEach(scene => sceneObserver.observe(scene));
+
+    // --- Parallax Effect on Mouse Move ---
+    window.addEventListener('mousemove', (e) => {
+        const moveX = (e.clientX - window.innerWidth / 2) * 0.01;
+        const moveY = (e.clientY - window.innerHeight / 2) * 0.01;
+
+        document.querySelector('.layer-1').style.transform = `translate(${moveX}px, ${moveY}px)`;
+        document.querySelector('.layer-2').style.transform = `translate(${moveX * 2}px, ${moveY * 2}px)`;
+        document.querySelector('.layer-3').style.transform = `translate(${moveX * 3}px, ${moveY * 3}px)`;
     });
 
-    document.querySelectorAll('img[data-src]').forEach(img => {
-        imageObserver.observe(img);
+    // --- Add a subtle "shake" on ignition ---
+    window.addEventListener('scroll', () => {
+        const currentScene = body.getAttribute('data-active-scene');
+        if (currentScene === 'ignition') {
+            const astronaut = document.querySelector('.astronaut-wrapper');
+            const shake = Math.random() * 2;
+            astronaut.style.marginLeft = `${shake}px`;
+        }
     });
-}
+});
