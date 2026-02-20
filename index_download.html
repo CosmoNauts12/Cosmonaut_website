@@ -7,6 +7,7 @@
     <title>CosmoNaut - Enterprise Desktop Platform</title>
     <meta name="description"
         content="Transform your workflow with CosmoNaut - A next-generation desktop platform built for the modern enterprise. Available for Windows, macOS, and Linux.">
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
     <link rel="stylesheet" href="styles_download.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,9 +16,7 @@
 </head>
 
 <body>
-    <!-- Full-screen Background Animation -->
-    <div id="antigravity-canvas"
-        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none;"></div>
+
 
     <!-- Navigation -->
     <nav class="navbar">
@@ -29,7 +28,7 @@
                 </a>
                 <ul class="nav-links">
                     <li><a href="#capabilities">Capabilities</a></li>
-                    <li><a href="odyssey/index.html">Odyssey</a></li>
+                    <li><a href="index.html">Odyssey</a></li>
                     <li><a href="#download">Download</a></li>
                     <li><a href="#resources">Resources</a></li>
                     <li><a href="#insights">Insights</a></li>
@@ -49,21 +48,7 @@
                                 fill="currentColor" />
                         </svg>
                     </button>
-                    <!-- User Authentication -->
-                    <div class="user-auth" id="userAuth">
-                        <button class="star-border-container nav-btn" id="signInBtn">
-                            <div class="border-gradient-bottom"></div>
-                            <div class="border-gradient-top"></div>
-                            <div class="inner-content">Sign In</div>
-                        </button>
-                        <div class="user-menu" id="userMenu" style="display: none;">
-                            <div class="user-avatar" id="userAvatar"></div>
-                            <div class="user-dropdown">
-                                <span class="user-email" id="userEmail"></span>
-                                <button class="btn-signout" id="signOutBtn">Sign Out</button>
-                            </div>
-                        </div>
-                    </div>
+
                     <a href="https://github.com/Adith1207/CosmoNaut" class="star-border-container nav-btn"
                         target="_blank">
                         <div class="border-gradient-bottom"></div>
@@ -111,10 +96,7 @@
                         </a>
                     </div>
                     <div class="hero-stats">
-                        <div class="stat">
-                            <div class="stat-value">10x</div>
-                            <div class="stat-label">Faster Performance</div>
-                        </div>
+
                         <div class="stat">
                             <div class="stat-value">100%</div>
                             <div class="stat-label">Data Privacy</div>
@@ -135,33 +117,11 @@
         </div>
     </section>
 
-    <!-- Background & Interaction Animations -->
+    <!-- Interaction Animations -->
     <script type="module">
-        import { Antigravity } from './antigravity.js';
         import { ClickSpark } from './clickspark.js';
 
         document.addEventListener('DOMContentLoaded', () => {
-            const container = document.getElementById('antigravity-canvas');
-            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#5227FF';
-
-            const antigravity = new Antigravity(container, {
-                count: 500,
-                magnetRadius: 12,
-                ringRadius: 18,
-                waveSpeed: 0.3,
-                waveAmplitude: 2,
-                particleSize: 1.2,
-                lerpSpeed: 0.04,
-                color: primaryColor,
-                autoAnimate: true,
-                particleVariance: 8,
-                rotationSpeed: 0.05,
-                depthFactor: 3,
-                pulseSpeed: 2,
-                particleShape: 'capsule',
-                fieldStrength: 5
-            });
-
             // ClickSpark effect
             new ClickSpark({
                 sparkColor: '#fff',
@@ -170,13 +130,6 @@
                 sparkCount: 8,
                 duration: 400
             });
-
-            // Update color on theme change
-            const observer = new MutationObserver(() => {
-                const newColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
-                antigravity.updateColor(newColor);
-            });
-            observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
         });
     </script>
 
@@ -630,8 +583,7 @@
         </div>
     </footer>
 
-    <!-- Firebase SDK -->
-    <script type="module" src="auth.js"></script>
+
     <script src="script_download.js"></script>
 </body>
 
