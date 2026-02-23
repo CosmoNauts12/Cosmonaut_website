@@ -139,17 +139,22 @@ async function updateDownloadLinks() {
                 }
             });
 
+            // Helper to apply direct download link
+            function applyDownloadLink(btn, url) {
+                if (btn && url) {
+                    btn.href = url;
+                    btn.setAttribute('target', '_blank');
+                    btn.setAttribute('rel', 'noopener noreferrer');
+                }
+            }
+
             // Update Windows links
             const windowsCard = document.querySelector('[data-platform="windows"]');
             if (windowsCard) {
                 const primaryBtn = windowsCard.querySelector('.download-btn.primary');
                 const secondaryBtn = windowsCard.querySelector('.download-btn.secondary');
-                if (primaryBtn && downloadButtons['windows-msi']) {
-                    primaryBtn.href = downloadButtons['windows-msi'];
-                }
-                if (secondaryBtn && downloadButtons['windows-exe']) {
-                    secondaryBtn.href = downloadButtons['windows-exe'];
-                }
+                applyDownloadLink(primaryBtn, downloadButtons['windows-msi']);
+                applyDownloadLink(secondaryBtn, downloadButtons['windows-exe']);
             }
 
             // Update macOS links
@@ -157,12 +162,8 @@ async function updateDownloadLinks() {
             if (macosCard) {
                 const primaryBtn = macosCard.querySelector('.download-btn.primary');
                 const secondaryBtn = macosCard.querySelector('.download-btn.secondary');
-                if (primaryBtn && downloadButtons['macos-arm']) {
-                    primaryBtn.href = downloadButtons['macos-arm'];
-                }
-                if (secondaryBtn && downloadButtons['macos-intel']) {
-                    secondaryBtn.href = downloadButtons['macos-intel'];
-                }
+                applyDownloadLink(primaryBtn, downloadButtons['macos-arm']);
+                applyDownloadLink(secondaryBtn, downloadButtons['macos-intel']);
             }
 
             // Update Linux links
@@ -170,21 +171,16 @@ async function updateDownloadLinks() {
             if (linuxCard) {
                 const primaryBtn = linuxCard.querySelector('.download-btn.primary');
                 const secondaryBtn = linuxCard.querySelector('.download-btn.secondary');
-                if (primaryBtn && downloadButtons['linux-deb']) {
-                    primaryBtn.href = downloadButtons['linux-deb'];
-                }
-                if (secondaryBtn && downloadButtons['linux-appimage']) {
-                    secondaryBtn.href = downloadButtons['linux-appimage'];
-                }
+                applyDownloadLink(primaryBtn, downloadButtons['linux-deb']);
+                applyDownloadLink(secondaryBtn, downloadButtons['linux-appimage']);
             }
         }
     } catch (error) {
         console.log('Could not fetch latest release info:', error);
-        // Fallback to default GitHub releases page
+        // Fallback to default GitHub releases page (open in new tab)
         document.querySelectorAll('.download-btn').forEach(btn => {
-            if (btn.href.includes('releases/latest/download')) {
-                btn.href = 'https://github.com/Adith1207/CosmoNaut/releases/latest';
-            }
+            btn.setAttribute('target', '_blank');
+            btn.setAttribute('rel', 'noopener noreferrer');
         });
     }
 }
